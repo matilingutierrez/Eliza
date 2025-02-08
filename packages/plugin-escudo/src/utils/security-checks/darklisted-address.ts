@@ -4,19 +4,36 @@ import { addressDarkList } from './data/addresses-darklist';
 export const darklistedAddressCheck = (
   transaction: SafeMultisigTransactionResponse,
 ) => {
+    const addresses = [{
+        action: 'transfer',
+        address: transaction.to
+    }]
 
-    const address = transaction.to
-    const darklistedAddress = addressDarkList.find(darklist => darklist.address.toLowerCase() === address.toLowerCase())
-
-    if (darklistedAddress) {
-        return {
-            secure: false,
-            feedback: `Transfer to malicious address ${address} which is darklisted. ${darklistedAddress.comment}`,
-        };
-    } else {
-        return {
-            secure: true,
-            feedback: '',
-        };
+    const { dataDecoded } = transaction
+    if (dataDecoded) {
+        if (['approve', 'transfer'].includes(dataDecoded.method)) {
+            addresses.push({
+                action: `ERC-20 ${dataDecoded.method}`,
+                address: dataDecoded.parameters[0].value
+            })
+        }
     }
+
+    for (const addressEntry of addresses) {
+        const darklistedAddress = addressDarkList.find(
+            darklist => darklist.address.toLowerCase() === addressEntry.address.toLowerCase()
+        )
+
+        if (darklistedAddress) {
+            return {
+                secure: false,
+                feedback: `${addressEntry.action} involving malicious address ${addressEntry.address} which is darklisted. ${darklistedAddress.comment}`,
+            };
+        }
+    }
+
+    return {
+        secure: true,
+        feedback: '',
+    };
 };

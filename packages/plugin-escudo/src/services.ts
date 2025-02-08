@@ -36,11 +36,10 @@ export const createEscudoService = (
                 let executionErrors = ''
 
                 for (const transaction of pendingTransactions) {
-                    console.log(`making security check for tx ${transaction.nonce}`)
                     const securityFeedback = checkTxSecurity(transaction)
-                    console.log(securityFeedback)
+
                     if (securityFeedback) {
-                        securityFeedbackMessage += `\nTransaction ${transaction.nonce}: ${securityFeedback}`
+                        securityFeedbackMessage += `\n- Transaction ${transaction.nonce}: ${securityFeedback}`
                         rejectedTransactions++
                         continue
                     }
@@ -80,10 +79,10 @@ export const createEscudoService = (
                     if (feedback) feedback += '\n'
                     feedback += `${rejectedTransactions} transaction${rejectedTransactions > 1 ? 's were' : ' was'} rejected.`
                     if (securityFeedbackMessage) {
-                        feedback += `\nSecurity issues:${securityFeedbackMessage}`
+                        feedback += `\n### Security issues\n${securityFeedbackMessage}`
                     }
                     if (executionErrors) {
-                        feedback += `\nExecution errors:${executionErrors}`
+                        feedback += `\n### Execution errors\n${executionErrors}`
                     }
                 }
 
