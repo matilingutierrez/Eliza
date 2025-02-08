@@ -1,0 +1,17 @@
+{
+    "extends": "../core/tsconfig.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "bundler",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "rootDir": "src",
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ]
+}
