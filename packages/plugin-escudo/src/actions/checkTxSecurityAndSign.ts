@@ -39,26 +39,18 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
                 // Initialize service and check/sign tx
                 const escudoService = createEscudoService("https://optimism.llamarpc.com", config.AGENT_PRIVATE_KEY, address);
                 const result: CheckTxSecurityAndSignResponse = await escudoService.checkTxSecurityAndSign(address);
-                
+
                 const callbackContent = {
                     secure: result.secure,
                     signed: result.signed,
                     feedback: result.feedback
                 };
 
-                if (!result.secure) {
-                    callback({
-                        text: `❌ Transaction security check failed!\n${result.feedback}`,
-                        content: callbackContent
-                    });
-                    return false;
-                }
-
                 callback({
                     text: result.feedback,
                     content: callbackContent
                 });
-                return true;
+                return result.secure;
 
             } catch (error) {
                 elizaLogger.error("Transaction security check failed:", error);

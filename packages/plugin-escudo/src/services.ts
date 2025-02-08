@@ -36,12 +36,24 @@ export const createEscudoService = (
                 let executionErrors = ''
 
                 for (const transaction of pendingTransactions) {
-                    const securityFeedback = checkTxSecurity(transaction)
+                    let securityFeedback = ''
+                    if (transaction.dataDecoded?.method === 'multiSend') {
+                        (transaction.dataDecoded?.parameters[0] as any).valueDecoded?.forEach((tx, index) => {
+                            const txSecurityFeedback = checkTxSecurity(tx)
+                            if (txSecurityFeedback) {
+                                securityFeedback += `\n  - **Multisend operation ${index + 1}**: ${txSecurityFeedback}`
+                            }
+                        })
+                    } else {
+                        securityFeedback = checkTxSecurity(transaction)
+                    }
 
                     if (securityFeedback) {
+                        console.log('entre aca lol')
+                        console.log(securityFeedback)
                         securityFeedbackMessage += `\n- Transaction ${transaction.nonce}: ${securityFeedback}`
                         rejectedTransactions++
-                        continue
+                        break
                     }
 
                     try {
