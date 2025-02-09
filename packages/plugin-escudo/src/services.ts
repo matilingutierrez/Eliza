@@ -1,6 +1,6 @@
 import { CheckTxSecurityAndSignResponse } from "./types";
 import { SafeMultisigTransactionResponse } from '@safe-global/types-kit';
-import { maxUint256 } from "viem";
+import { erc20Abi, maxUint256 } from "viem";
 
 import { createRequire } from 'module';
 import { checkTxSecurity } from "./utils/checkTxSecurity";
@@ -25,7 +25,6 @@ export const createEscudoService = (
                 safeAddress: safeAddress
               })
             const pendingTransactions: SafeMultisigTransactionResponse[] = (await apiKit.getPendingTransactions(safeAddress)).results.filter(tx => tx.isExecuted === false).reverse()
-            console.log(pendingTransactions)
 
             if (pendingTransactions.length > 0) {
                 const safeInfo = await apiKit.getSafeInfo(pendingTransactions[0].safe)
@@ -40,7 +39,7 @@ export const createEscudoService = (
                     let securityFeedback = ''
                     if (transaction.dataDecoded?.method === 'multiSend') {
                         (transaction.dataDecoded?.parameters[0] as any).valueDecoded?.forEach((tx, index) => {
-                            const txSecurityFeedback = checkTxSecurity(tx, owners)
+                            const txSecurityFeedback = checkTxSecurity({...tx, safe: transaction.safe}, owners)
                             if (txSecurityFeedback) {
                                 securityFeedback += `\n  - **Multisend operation ${index + 1}**: ${txSecurityFeedback}`
                             }
@@ -50,8 +49,6 @@ export const createEscudoService = (
                     }
 
                     if (securityFeedback) {
-                        console.log('entre aca lol')
-                        console.log(securityFeedback)
                         securityFeedbackMessage += `\n- Transaction ${transaction.nonce}: ${securityFeedback}`
                         rejectedTransactions++
                         break
@@ -60,12 +57,7 @@ export const createEscudoService = (
                     try {
                         const safeTxHash = transaction.safeTxHash
                         const signature = await protocolKitAgent.signHash(safeTxHash)
-
-                        console.log(transaction.dataDecoded)
-                        console.log(transaction.to)
-                        console.log(transaction.value)
-                        console.log(maxUint256)
-                    
+    
                         // Confirm the Safe transaction
                         await apiKit.confirmTransaction(
                             safeTxHash,

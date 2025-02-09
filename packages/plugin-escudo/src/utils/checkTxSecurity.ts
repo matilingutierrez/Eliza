@@ -5,16 +5,12 @@ export const checkTxSecurity = (transaction: SafeMultisigTransactionResponse, ow
   let feedback = '';
   
   const results = securityChecks.map(check => check(transaction, owners));
-
-  console.log('initial feedback', feedback)
   
   results.forEach(result => {
     if (!result.secure) {
-      feedback += result.feedback ? `${result.feedback}\n` : '';
+      feedback += result.feedback ? `${result.feedback}` : '';
     }
   });
-
-  console.log('final feedback', feedback)
 
   return feedback;
 };
