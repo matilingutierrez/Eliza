@@ -4,6 +4,7 @@ import { validateEscudoConfig } from "../environment";
 import { createEscudoService } from "../services";
 import { getCheckTxSecurityAndSignExamples } from "../examples";
 import type { CheckTxSecurityAndSignResponse } from "../types";
+import { getConfig } from "../utils/config";
 
 export const getCheckTxSecurityAndSignAction = (): Action => {
     return {
@@ -26,7 +27,7 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
                 const config = await validateEscudoConfig(runtime);
 
                 // Get transaction from message content
-                const address = message.content.text.split('`')[1].split('oeth:')[1] as string;
+                const {address, chainId, rpcUrl} = getConfig(message.content.text.split('`')[1] as string);
 
                 if (!address) {
                     callback({
@@ -37,7 +38,7 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
                 }
 
                 // Initialize service and check/sign tx
-                const escudoService = createEscudoService("https://optimism.llamarpc.com", config.AGENT_PRIVATE_KEY, address);
+                const escudoService = createEscudoService(rpcUrl, config.AGENT_PRIVATE_KEY, config.AGENT_ADDRESS, address, chainId);
                 const result: CheckTxSecurityAndSignResponse = await escudoService.checkTxSecurityAndSign();
 
                 const callbackContent = {
