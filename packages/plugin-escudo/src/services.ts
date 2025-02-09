@@ -11,12 +11,14 @@ const Safe = require('@safe-global/protocol-kit').default;
 export const createEscudoService = (
     rpcUrl: string,
     privateKey: string,
-    safeAddress: string
+    agentAddress: string,
+    safeAddress: string,
+    chainId: bigint
 ) => {
     const checkTxSecurityAndSign = async (): Promise<CheckTxSecurityAndSignResponse> => {
         try {
             const apiKit = new SafeApiKit({
-                chainId: 10n
+                chainId
             })
 
             const protocolKitAgent = await Safe.init({
@@ -51,7 +53,17 @@ export const createEscudoService = (
                     if (securityFeedback) {
                         securityFeedbackMessage += `\n- Transaction ${transaction.nonce}: ${securityFeedback}`
                         rejectedTransactions++
-                        break
+                        const rejectionTransaction = await protocolKitAgent.createRejectionTransaction(transaction.nonce)
+                        const safeTxHash = await protocolKitAgent.getTransactionHash(rejectionTransaction)
+                        const signature = await protocolKitAgent.signHash(safeTxHash)
+                        await apiKit.proposeTransaction({
+                            safeAddress: safeAddress,
+                            safeTransactionData: rejectionTransaction.data,
+                            safeTxHash,
+                            senderAddress: agentAddress,
+                            senderSignature: signature.data
+                          })
+                        continue
                     }
 
                     try {
@@ -63,9 +75,11 @@ export const createEscudoService = (
                             safeTxHash,
                             signature.data
                         )
-
-                        const safeTransaction = await apiKit.getTransaction(safeTxHash)
-                        await protocolKitAgent.executeTransaction(safeTransaction)
+                        
+                        if (rejectedTransactions === 0) {
+                            const safeTransaction = await apiKit.getTransaction(safeTxHash)
+                            await protocolKitAgent.executeTransaction(safeTransaction)
+                        }
 
                         signedTransactions++
                     } catch (error) {
