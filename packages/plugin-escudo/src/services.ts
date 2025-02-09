@@ -13,9 +13,7 @@ export const createEscudoService = (
     privateKey: string,
     safeAddress: string
 ) => {
-    const checkTxSecurityAndSign = async (
-        address: string
-    ): Promise<CheckTxSecurityAndSignResponse> => {
+    const checkTxSecurityAndSign = async (): Promise<CheckTxSecurityAndSignResponse> => {
         try {
             const apiKit = new SafeApiKit({
                 chainId: 10n
@@ -30,6 +28,9 @@ export const createEscudoService = (
             console.log(pendingTransactions)
 
             if (pendingTransactions.length > 0) {
+                const safeInfo = await apiKit.getSafeInfo(pendingTransactions[0].safe)
+                const owners = safeInfo.owners
+
                 let securityFeedbackMessage = ''
                 let signedTransactions = 0
                 let rejectedTransactions = 0
@@ -39,13 +40,13 @@ export const createEscudoService = (
                     let securityFeedback = ''
                     if (transaction.dataDecoded?.method === 'multiSend') {
                         (transaction.dataDecoded?.parameters[0] as any).valueDecoded?.forEach((tx, index) => {
-                            const txSecurityFeedback = checkTxSecurity(tx)
+                            const txSecurityFeedback = checkTxSecurity(tx, owners)
                             if (txSecurityFeedback) {
                                 securityFeedback += `\n  - **Multisend operation ${index + 1}**: ${txSecurityFeedback}`
                             }
                         })
                     } else {
-                        securityFeedback = checkTxSecurity(transaction)
+                        securityFeedback = checkTxSecurity(transaction, owners)
                     }
 
                     if (securityFeedback) {

@@ -38,7 +38,7 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
 
                 // Initialize service and check/sign tx
                 const escudoService = createEscudoService("https://optimism.llamarpc.com", config.AGENT_PRIVATE_KEY, address);
-                const result: CheckTxSecurityAndSignResponse = await escudoService.checkTxSecurityAndSign(address);
+                const result: CheckTxSecurityAndSignResponse = await escudoService.checkTxSecurityAndSign();
 
                 const callbackContent = {
                     secure: result.secure,

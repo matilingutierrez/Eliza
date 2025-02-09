@@ -3,6 +3,7 @@ import { addressDarkList } from './data/addresses-darklist';
 
 export const darklistedAddressCheck = (
   transaction: SafeMultisigTransactionResponse,
+  owners: string[]
 ) => {
     const addresses = [{
         action: 'transfer',

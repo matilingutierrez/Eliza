@@ -3,6 +3,7 @@ import { maxUint256 } from 'viem';
 
 export const unsafeApprovalCheck = (
   transaction: SafeMultisigTransactionResponse,
+  owners: string[]
 ) => {
     const { dataDecoded } = transaction
     if (dataDecoded) {

@@ -5,7 +5,7 @@ import { swapFrontrunningCheck } from './swap-frontunning';
 import { unsafeApprovalCheck } from './unsafe-approval';
 
 // Type for security check functions
-type SecurityCheck = (transaction: SafeMultisigTransactionResponse) => {
+type SecurityCheck = (transaction: SafeMultisigTransactionResponse, owners: string[]) => {
   secure: boolean;
   feedback: string;
 };
