@@ -1,7 +1,7 @@
 import type { Action, IAgentRuntime, Memory, State, HandlerCallback } from "@elizaos/core";
 import { elizaLogger } from "@elizaos/core";
-import { validateEscudoConfig } from "../environment";
-import { createEscudoService } from "../services";
+import { validateSafeValidatorConfig } from "../environment";
+import { createSafeValidatorService } from "../services";
 import { getCheckTxSecurityAndSignExamples } from "../examples";
 import type { CheckTxSecurityAndSignResponse } from "../types";
 import { getConfig } from "../utils/config";
@@ -12,7 +12,7 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
         similes: ["VERIFY_AND_SIGN_TX", "SECURE_TX_SIGN", "VALIDATE_AND_SIGN_TX"],
         description: "Check transaction security and sign if secure",
         validate: async (runtime: IAgentRuntime) => {
-            await validateEscudoConfig(runtime);
+            await validateSafeValidatorConfig(runtime);
             return true;
         },
         handler: async (
@@ -24,7 +24,7 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
         ) => {
             try {
                 // Validate config
-                const config = await validateEscudoConfig(runtime);
+                const config = await validateSafeValidatorConfig(runtime);
 
                 // Get transaction from message content
                 const {address, chainId, rpcUrl} = getConfig(message.content.text.split('`')[1] as string);
@@ -38,8 +38,8 @@ export const getCheckTxSecurityAndSignAction = (): Action => {
                 }
 
                 // Initialize service and check/sign tx
-                const escudoService = createEscudoService(rpcUrl, config.AGENT_PRIVATE_KEY, config.AGENT_ADDRESS, address, chainId);
-                const result: CheckTxSecurityAndSignResponse = await escudoService.checkTxSecurityAndSign();
+                const safeValidatorService = createSafeValidatorService(rpcUrl, config.SAFE_VALIDATOR_PRIVATE_KEY, config.SAFE_VALIDATOR_ADDRESS, address, chainId);
+                const result: CheckTxSecurityAndSignResponse = await safeValidatorService.checkTxSecurityAndSign();
 
                 const callbackContent = {
                     secure: result.secure,

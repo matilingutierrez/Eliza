@@ -1,10 +1,10 @@
-# @elizaos/plugin-escudo
+# @elizaos/plugin-safe-validator
 
 This plugin provides comprehensive multisig transaction validation and signing capabilities through integration with Safe's SDK.
 
 ## Description
 
-The Escudo plugin enables secure multisig transaction validation, proposal, and signing with built-in security checks and Safe protocol integration.
+The Safe Transactions Validator plugin enables secure multisig transaction validation, proposal, and signing with built-in security checks and Safe protocol integration.
 
 ## Features
 
@@ -16,7 +16,6 @@ The Escudo plugin enables secure multisig transaction validation, proposal, and 
 - Custom security check framework
 - Transaction parameter verification
 - Owner validation
-- Gas optimization checks
 - Value transfer validation
 - Contract interaction analysis
 
@@ -36,7 +35,7 @@ The following security checks are performed on each transaction:
 ### Required Environment Variables
 
 ```env
-# Escudo Plugin Configuration
+# Safe Transactions Validator Plugin Configuration
 AGENT_ADDRESS=                              # Address of the agent
 AGENT_PRIVATE_KEY=                          # Private key of the agent
 ```

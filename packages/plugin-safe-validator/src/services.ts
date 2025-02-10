@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 const SafeApiKit = require('@safe-global/api-kit').default;
 const Safe = require('@safe-global/protocol-kit').default;
 
-export const createEscudoService = (
+export const createSafeValidatorService = (
     rpcUrl: string,
     privateKey: string,
     agentAddress: string,
